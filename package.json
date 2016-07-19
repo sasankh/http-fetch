@@ -1,5 +1,5 @@
 {
-  "name": "react-skeleton",
+  "name": "http-fetch",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -9,19 +9,20 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/sasankh/react-skeleton.git"
+    "url": "git+https://github.com/sasankh/http-fetch.git"
   },
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/sasankh/react-skeleton/issues"
+    "url": "https://github.com/sasankh/http-fetch/issues"
   },
-  "homepage": "https://github.com/sasankh/react-skeleton#readme",
+  "homepage": "https://github.com/sasankh/http-fetch#readme",
   "dependencies": {
     "babel-preset-react": "^6.1.18",
     "babelify": "^7.2.0",
     "react": "^0.14.3",
     "react-dom": "^0.14.3",
-    "watchify": "^3.6.1"
+    "watchify": "^3.6.1",
+    "whatwg-fetch": "^1.0.0"
   }
 }
