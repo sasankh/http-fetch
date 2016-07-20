@@ -20807,32 +20807,57 @@ var Actions = require('../reflux/actions.jsx');
 var IngredientStore = require('../reflux/ingredients-store.jsx');
 
 var List = React.createClass({
-    displayName: 'List',
+  displayName: 'List',
 
-    mixins: [Reflux.listenTo(IngredientStore, 'onChange')],
-    getInitialState: function () {
-        return { ingredients: [] };
-    },
+  mixins: [Reflux.listenTo(IngredientStore, 'onChange')],
+  getInitialState: function () {
+    return { ingredients: [], newText: '' };
+  },
 
-    componentWillMount: function () {
-        Actions.getIngredients();
-    },
+  componentWillMount: function () {
+    Actions.getIngredients();
+  },
 
-    onChange: function (event, ingredients) {
-        this.setState({ ingredients: ingredients });
-    },
+  onChange: function (event, ingredients) {
+    this.setState({ ingredients: ingredients });
+  },
 
-    render: function () {
-        var listItems = this.state.ingredients.map(function (item) {
-            return React.createElement(ListItem, { key: item.id, ingredient: item.text });
-        });
+  onInputChange: function (e) {
+    this.setState({ newText: e.target.value });
+  },
 
-        return React.createElement(
-            'ul',
-            null,
-            listItems
-        );
+  onClick: function (e) {
+    if (this.state.newText) {
+      Actions.postIngredient(this.state.newText);
     }
+
+    this.setState({ newText: '' });
+  },
+
+  render: function () {
+    var listItems = this.state.ingredients.map(function (item) {
+      return React.createElement(ListItem, { key: item.id, ingredient: item.text });
+    });
+
+    return React.createElement(
+      'div',
+      null,
+      React.createElement('input', {
+        placeholder: 'Add Item',
+        value: this.state.newText,
+        onChange: this.onInputChange }),
+      React.createElement(
+        'button',
+        { onClick: this.onClick },
+        'Add Item'
+      ),
+      React.createElement(
+        'ul',
+        null,
+        listItems
+      )
+    );
+  }
 });
 
 module.exports = List;
@@ -20884,7 +20909,24 @@ var IngredientStore = Reflux.createStore({
       this.fireUpdate();
     }).bind(this));
   },
-  postIngredient: function (text) {},
+  postIngredient: function (text) {
+
+    if (!this.ingredients) {
+      this.ingredients = [];
+    }
+
+    var ingredient = {
+      'text': text,
+      'id': Math.floor(Date.now() / 1000) + text
+    };
+
+    this.ingredients.push(ingredient);
+    this.fireUpdate();
+
+    HTTP.post('/ingredients', ingredient).then((function (response) {
+      this.getIngredients();
+    }).bind(this));
+  },
   //Refresh function
   fireUpdate: function () {
     this.trigger('change', this.ingredients);
@@ -20901,6 +20943,18 @@ var service = {
   get: function (url) {
     return fetch(baseUrl + url).then(function (response) {
       return response.json();
+    });
+  },
+  post: function (url, ingredient) {
+    return fetch(baseUrl + url, {
+      headers: {
+        'Accept': 'text/plain',
+        'Content-Type': 'application/json'
+      },
+      method: 'post',
+      body: JSON.stringify(ingredient)
+    }).then(function (response) {
+      return response;
     });
   }
 };
